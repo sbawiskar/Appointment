@@ -1,0 +1,95 @@
+/*
+Author: Sayali Bawiskar
+Date:6th June2019
+Description: Added style for tooltip
+*/
+
+.THIS .tooltip {
+  position: relative;
+  display: inline-block;
+  
+}
+
+/*.THIS .tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.THIS .tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.THIS .tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}*/
+
+/*Author : Sayali Bawiskar
+  Description : hightlighting list and calendar toggle*/
+.THIS .defaultViewFix svg{fill: green!important;}
+/*Toogling ends*/
+
+
+/*Image Tooltip css for Calendar ---Sayali Bawiskar*/
+.THIS .tooltip
+{
+  text-decoration:none;
+  position:relative;
+}
+ 
+ 
+.THIS .tooltip span
+{
+  display:none;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  color:black;
+  background:white; 
+}
+ 
+ 
+.THIS .tooltip span img
+{
+  float:right;
+  margin:0px 2px 2px 0;
+}
+ 
+ 
+.THIS .tooltip:hover span
+{
+  display:block;
+  position:fixed;
+  top:0;
+  right:0;
+  z-index:1000;
+  width:auto;
+  max-width:500px;
+  min-height:300px;
+  border:1px solid black;
+  /*margin-top:12px;
+  margin-left:12px;*/
+  overflow:hidden;
+  padding:8px;
+}
+
+/*Image Tooltip css for Calendar ends*/
