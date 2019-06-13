@@ -1,0 +1,14 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPagetypes" access="global" controller="WholesalerWorkingHours" >
+	
+    <ltng:require scripts="{!join(',',                            
+                           $Resource.FullcalendarNew + '/fullcalendar-3.10.0/lib/jquery.min.js', 
+                           $Resource.FullcalendarNew + '/fullcalendar-3.10.0/lib/jquery-ui.min.js',
+                           $Resource.FullcalendarNew + '/fullcalendar-3.10.0/lib/moment.min.js',
+                           $Resource.FullcalendarNew + '/fullcalendar-3.10.0/fullcalendar.min.js')}"                         
+                  styles="{!$Resource.FullcalendarNew + '/fullcalendar-3.10.0/fullcalendar.min.css'}"                        
+                  afterScriptsLoaded="{!c.doInit}" /> 
+     
+    <aura:attribute name="response" type="List"/>
+    <aura:attribute name="response1" type="List"/>
+    <div id='calendar' style="width : 100%"></div>    
+</aura:component>
