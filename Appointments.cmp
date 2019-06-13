@@ -1,0 +1,285 @@
+<!--
+Name: OP_Appointments
+Description: Used in One Portal 'Delivery Schedule' tab to display Shipments for selected wholesaler. 
+-->
+
+<aura:component controller="JDACallout" implements="flexipage:availableForRecordHome,force:hasRecordId,flexipage:availableForAllPageTypes,force:appHostable" access="global" >
+    
+    <!--{!$Browser.formFactor}-->
+    
+    <aura:attribute name="Today" type="object"/>
+    <aura:attribute name="Tomorrow" type="object"/>
+    <aura:attribute name="Outstanding" type="object"/>
+    <aura:attribute name="sortedDirection" type="String"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="sortedBy" type="String"/>
+    <aura:attribute name="defaultSortDirection" type="String"/>
+    <aura:attribute name="options" type="List" default="[
+    {'label':'Appointment Date','value':'Appointment Date'},
+    {'label':'Origin','value':'Origin'},
+    {'label':'Carrier','value':'Carrier'},
+    {'label':'Carrier Type','value':'Carrier Type'},
+    {'label':'Shipment ID','value':'Shipment ID'},
+    {'label':'PDCN','value':'PDCN'},
+    {'label':'Package','value':'Package'},
+    {'label':'Brand','value':'Brand'},                                                      
+    {'label':'None','value':'None'}]"/>
+    <aura:attribute name="SelectedFilter" type="String" default="None"/>
+    <aura:attribute name="EnteredFilterValue" type="String"/>
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+  
+  
+<!--Author: Sayali
+Date: 31 May 2019
+Description: Added Aura id for switching Calendar view--> 
+    <div aura:id="viewShipmentList">
+        
+<!--Author: Vivek Nayak
+Date: 12 June 2019
+Description: For Filter, search box and Export button on list view-->
+        
+   <lightning:layout >
+     <lightning:layoutItem  padding="around-small">    
+     <div >
+     <lightning:combobox aura:id=" Search Filter" name="Appointment Filter" label="Filter Appointments" placeholder="Select An Option" 
+                         options="{!v.options}" value="{!v.SelectedFilter}"/>
+     </div>
+     </lightning:layoutItem>
+     <div> 
+     <lightning:layoutItem padding="around-small" >
+     <aura:if isTrue="{!v.SelectedFilter=='Appointment Date'}">
+          <div class="slds-grid">
+          <div class="slds-col slds-m-left_small"> 
+          <lightning:input type="Date" placeholder="Filter By Date" value="{!v.EnteredFilterValue}"/>
+          </div>
+          <div class="slds-col slds-m-top_small slds-m-left_small slds-p-around_small">       
+         <aura:set attribute="else"> <div></div></aura:set> 
+          <lightning:button label="Filter"  onclick="{!c.FilterByAppointmentDate}"/>
+          </div>
+          </div>       
+      </aura:if>
+    
+      <aura:if isTrue="{!v.SelectedFilter=='Origin'}" >
+          <div class="slds-grid">
+          <div class="slds-col"> 
+          <lightning:input type="string" placeholder="Filter By Origin" value="{!v.EnteredFilterValue}"/>
+              </div>  
+          <div class="slds-col slds-m-top_small slds-m-left_small slds-p-around_small">        
+          <lightning:button label="Filter"  onclick="{!c.FilterByAppointmentDate}"/>
+          </div>
+             
+          </div>
+      </aura:if>
+          
+      <aura:if isTrue="{!v.SelectedFilter=='Carrier'}" >
+          <div class="slds-grid">
+          <div class="slds-col"> 
+          <lightning:input type="string" placeholder="Filter By Carrier" value="{!v.EnteredFilterValue}"/> 
+              </div>
+          <div class="slds-col slds-m-top_small slds-m-left_small slds-p-around_small">        
+          <lightning:button label="Filter"  onclick="{!c.FilterByCarrier}"/>
+          </div> 
+          </div>
+      </aura:if>
+          
+      <aura:if isTrue="{!v.SelectedFilter=='Carrier Type'}" >
+          <div class="slds-grid">
+          <div class="slds-col"> 
+          <lightning:input type="string" placeholder="Filter By Carrier Type" value="{!v.EnteredFilterValue}"/> 
+              </div>
+          <div class="slds-col slds-m-top_small slds-m-left_small slds-p-around_small">        
+          <lightning:button label="Filter"  onclick="{!c.FilterByAppointmentDate}"/>
+              </div>
+          </div> 
+      </aura:if>      
+       
+      <aura:if isTrue="{!v.SelectedFilter=='Shipment ID'}" >
+          <div class="slds-grid">
+          <div class="slds-col">
+          <lightning:input type="string" placeholder="Filter By Shipment ID" value="{!v.EnteredFilterValue}"/> 
+          </div>
+          <div class="slds-col slds-m-top_small slds-m-left_small slds-p-around_small">        
+          <lightning:button label="Filter"  onclick="{!c.FilterByAppointmentDate}"/>
+          </div>
+          </div>  
+      </aura:if>
+          
+      </lightning:layoutItem>
+      </div>
+       
+      <lightning:layoutItem alignmentBump="left" padding="around-small">    
+      <div class=" slds-m-right_xx-large" style="Padding-top:15px;" padding="around-small">
+      <lightning:button label="Export" iconName="utility:download" iconPosition="left" onclick="{!c.DownloadAsCSV}"/>
+      <lightning:buttonMenu alternativeText="Show menu" class="slds-button_last">
+	  <lightning:menuItem label="Today" value="item1" />
+      <lightning:menuItem label="Tomorrow" value="item2" />
+	  <lightning:menuItem label="Outstanding" value="item3" />
+      <lightning:menuItem label="All" value="item4" />    
+	  </lightning:buttonMenu> 
+
+          
+      <!-- Author : Sayali Bawiskar
+           Description : Moved Toggle Options 
+           Date : 6/12/2019-->
+      <lightning:icon class="Red defaultViewFix slds-p-left_xx-small" iconName="utility:list" size="small" alternativeText="List View" onclick="{!c.showListView}" iconPosition="left"/>
+      <lightning:icon  class="slds-p-left_xx-small" iconName="utility:event" size="small" alternativeText="Calendar" onclick="{!c.showCalendarView}" iconPosition="left"/>                   	 
+     </div>
+     </lightning:layoutItem>
+     </lightning:layout>
+   
+ <!--Author: Vivek Nayak
+Date: 13 June 2019
+Description: Tables for Appointment-->
+               
+<!--<div class="slds-page-header" role="banner" style="padding-top: 10px;   padding-bottom: 5px;">                                                
+    <span class="slds-page-header__title" style="font-size: 1rem">Today's Appointments</span>
+    </div> -->
+   <div class="slds-p-around_small">    
+   <div class="slds-scrollable_y" style="height:10rem;width:66rem">     
+   <table class="slds-table slds-table_cell-buffer slds-table-bordered">     
+   <thead>
+   <tr class="slds-text-align_right">
+       
+   <th scope='col'><div class="slds-Truncate" title="Shipment Id">Shipment Id</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Shipment Status">Shipment Status</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Origin">Origin</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Appointment Date">Appointment Date</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Appointment Time">Appointment Time</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Carrier">Carrier</div></th>
+   <th scope='col'><div class="slds-Truncate" title="Dedicated vs OTR">Dedicated vs OTR</div></th>
+   </tr>     
+   </thead>
+       
+        
+   <tbody>
+   <aura:iteration items="{!v.Today}" var="today">
+   <tr>
+   <th scope='row'><div class="slds-Truncate" title="{!today.ShipmentId}"><a href="javascript:void(0)">{!today.ShipmentId}</a></div></th>    
+   <td><div class="slds-Truncate" title="{!today.ShipmentStatus}">{!today.ShipmentStatus}</div></td>
+   <td><div class="slds-Truncate" title="{!today.Origin}">{!today.Origin}</div></td>
+   <td><div class="slds-Truncate" title="{!today.AppointmentDate}">{!today.AppointmentDate}</div></td>    
+   <td><div class="slds-Truncate" title="{!today.AppointmentTime}">{!today.AppointmentTime}</div></td>
+   <td><div class="slds-Truncate" title="{!today.Carrier}">{!today.Carrier}</div></td>
+   <td><div class="slds-Truncate" title="{!today.DedicatedVsOTR}">{!today.DedicatedVsOTR}</div></td>        
+   </tr>    
+   </aura:iteration>     
+   </tbody>     
+  </table>
+   </div>     
+    </div>     
+
+   <lightning:layout>
+   <lightning:layoutItem padding="around-small">
+       
+   <lightning:card title="Today's Appointments">       
+    <div class="slds-scrollable_y" style="height:19rem;width:66rem">
+      <lightning:datatable data="{! v.Today }"
+                         columns="{! v.mycolumns }"
+                         keyField="id"
+                         hideCheckboxColumn="true"
+                         sortedBy="{! v.sortedBy }"
+                         sortedDirection="{! v.sortedDirection }"
+                         defaultSortDirection="{! v.defaultSortDirection }"
+                         onsort="{!c.updateColumnSorting}"/>
+     </div>
+   </lightning:card>
+       
+   
+   <div class="slds-m-top_small">
+   <lightning:card title="Tomorrow's Appointments">    
+    <div class="slds-scrollable_y" style="height:19rem;width:66rem">
+    <lightning:datatable data="{! v.Tomorrow }"
+                         columns="{! v.mycolumns }"
+                         keyField="id"
+                         hideCheckboxColumn="true"
+                         sortedBy="{! v.sortedBy }"
+                         sortedDirection="{! v.sortedDirection }"
+                         defaultSortDirection="{! v.defaultSortDirection }"
+                         onsort="{!c.updateColumnSorting}"/>
+     </div>
+     </lightning:card>
+     </div>
+         
+    <div class="slds-m-top_small">
+    <lightning:card title="Outstanding Appointments">    
+    
+    <div class="slds-scrollable_y" style="height:19rem;width:66rem">
+        <lightning:datatable data="{! v.Outstanding }"
+                         columns="{! v.mycolumns }"
+                         keyField="id"
+                         hideCheckboxColumn="true"
+                         sortedBy="{! v.sortedBy }"
+                         sortedDirection="{! v.sortedDirection }"
+                         defaultSortDirection="{! v.defaultSortDirection }"
+                         onsort="{!c.updateColumnSorting}"/>
+      
+    </div>
+   </lightning:card>
+        
+   </div>
+       </lightning:layoutItem>
+        </lightning:layout>
+        
+   </div>
+    
+ <!--Author:Sayali Bawiskar
+    Date  :31st May 2019
+    Description : Added Calendar Component-->
+ <div id="printcalendar">
+    <div aura:id="viewCalendar" class=" ViewCalendar slds-hide" >
+    <!--Author:Sayali Bawiskar
+    Date  :31st May 2019
+    Description : Added Color indicator and print icon-->
+    
+     <div align="right" class="slds-p-top_xx-small">
+     <lightning:layout>
+       	<lightning:layoutItem alignmentBump="left" padding="around-small">
+             <div class=" slds-m-right_xx-large">
+                 <lightning:icon class=" Red slds-p-left_xx-small " iconName="utility:list" size="small" alternativeText="List View" onclick="{!c.showListView}" iconPosition="left"/>
+    				<lightning:icon class="defaultViewFix Red slds-p-left_xx-small " iconName="utility:event" size="small" alternativeText="Calendar" onclick="{!c.showCalendarView}" iconPosition="left"/>  
+                 	
+
+          			<lightning:icon class="slds-p-left_xx-small" iconName="utility:print" size="small" alternativeText="Print" onclick="{!c.printCalendar}" iconPosition="left"/>
+                 	<!--<lightning:icon id="calendarinfo" iconName="utility:info" size="small" alternativeText="Print" onmouseover="{!c.displaycalendarinfo}" iconPosition="left"/>-->
+                 
+                 <!--Author : Sayali Bawiskar
+                     Description :Added tooltip for Calendar
+                     date :6/12/2019-->
+                 <a class="tooltip slds-p-left_xx-small" href=""><img src="{!$Resource.info}" alt="Info" width="25" height="25" />
+   				<span><img src="{!$Resource.Calendarinfo}" alt="CalenderInfo" width="500" height="300" /></span>
+					</a> 
+                 	
+            </div>  
+        </lightning:layoutItem>
+     </lightning:layout>
+    
+    </div>
+          <!--  <div align="center">
+                    <div class="tooltip" style="background-color: #33a2ff ; padding: 10px;  width: 70px;">
+                                    <span class="tooltiptext">OTR</span>  
+                        </div>
+             <div class="tooltip" style="background-color: orange ; padding: 10px; width: 70px;">
+                                    <span class="tooltiptext">Dedicated Shipments</span>  
+                        </div>
+             <div class="tooltip" style="background-color: yellow ; padding: 10px; width: 70px;">
+                                    <span class="tooltiptext">Unassigned</span>  
+                        </div>
+                <div class="tooltip" style="background-color: white; padding: 10px; width: 70px;">
+                                    <span class="tooltiptext">Inside Wholesaler Opening Hours</span>  
+                        </div>
+             <div class="tooltip" style="background-color: lightgray ; padding: 10px; width: 70px;">
+                 <span class="tooltiptext">Last Wholesaler opening hour </span>
+                        </div>
+             <div class="tooltip" style="background-color: darkgray ; padding: 10px; width: 70px;">
+                                    <span class="tooltiptext">Outside Wholesaler Opening Hours</span>  
+                        </div>
+                    	                  
+            	</div>
+
+-->       
+    <c:Op_ShipmentCalendar></c:Op_ShipmentCalendar>    
+    </div> 
+        </div>
+                        
+</aura:component>
