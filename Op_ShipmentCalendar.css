@@ -6,3 +6,7 @@
   border-width: 0 1px;
 }
 .THIS .fc-widget-content  { height: 30px; }
+
+.THIS .fc-nonbusiness .fc-bgevent {
+    background-color: darkgray;
+}
