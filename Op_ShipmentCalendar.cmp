@@ -1,4 +1,4 @@
-<aura:component implements="force:appHostable,flexipage:availableForAllPagetypes" access="global" controller="WholesalerWorkingHours" >
+<aura:component implements="force:appHostable,flexipage:availableForAllPagetypes" access="global" controller="Op_AppointmentWrapper" >
 	
     <ltng:require scripts="{!join(',',                            
                            $Resource.FullcalendarNew + '/fullcalendar-3.10.0/lib/jquery.min.js', 
