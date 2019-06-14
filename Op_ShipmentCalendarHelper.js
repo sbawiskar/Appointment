@@ -1,6 +1,66 @@
 ({
-    fetchEvents :function(component){        
-        var action = component.get("c.getAppointments");
+    fetchEvents :function(component){    
+        var action = component.get("c.getAppointmentData");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state == "SUCCESS") {
+                var result = response.getReturnValue();
+                var shipmentappointment =result.shipmentappointment;
+                var wslrschddays = result.scheduledays;
+                var appointmenteventdata=[];
+                var wslrschedule=[];
+                shipmentappointment.forEach(function(key) {
+                    appointmenteventdata.push({
+                        'id':key.ID,
+                        'shipmentid':key.Shipment_ID__c,
+                        'start':key.ConcatDateTime__c,
+                        'description':key.Dedicated_vs_OTR__c,
+                        'origin':key.Origin__c,
+                        'carrier':key.Carrier__c,
+                        'shipmentstatus':key.ShipmentStatus__c                                                 
+                    }); 
+                    
+                }); 
+                wslrschddays.forEach(function(key1) {
+                    /*var time = $("#starttime").val();
+    				var hours = Number(time.match(/^(\d+)/)[1]);
+    				var minutes = Number(time.match(/:(\d+)/)[1]);
+    				var AMPM = time.match(/\s(.*)$/)[1];
+    				if (AMPM == "PM" && hours < 12) hours = hours + 12;
+    				if (AMPM == "AM" && hours == 12) hours = hours - 12;
+    				var sHours = hours.toString();
+   					 var sMinutes = minutes.toString();
+    				if (hours < 10) sHours = "0" + sHours;
+    				if (minutes < 10) sMinutes = "0" + sMinutes;
+    				alert(sHours + ":" + sMinutes);*/
+                    if(key1.Day__c=='Monday'){
+                        key1.Day__c = [1];
+                        key1.Start_Time__c = '09:00';
+                        key1.End_Time__c = '17:00';
+                    }
+                    if(key1.Day__c=='Tuesday'){
+                        key1.Day__c = [2];
+                        key1.Start_Time__c = '13:00';
+                        key1.End_Time__c = '17:00';
+                    }
+                    
+                    wslrschedule.push({
+                        'dow':key1.Day__c,
+                        'start' :key1.Start_Time__c, 
+                        'end' :key1.End_Time__c
+                        
+                      
+                                                                        
+                    }); 
+             
+                    
+                });
+                console.log("wslrSchDays-->",wslrschedule);
+                this.loadCalendar(appointmenteventdata,wslrschedule);
+            }
+        });
+        
+        /*var action = component.get("c.getAppointments");
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (state == "SUCCESS") {
@@ -105,14 +165,17 @@
         $A.enqueueAction(action);
        // $A.enqueueAction(actionworkinghours);
     },                                                
-           loadCalendar :function(data,day,starttime,endtime){          
+           loadCalendar :function(appointmenteventdata,wslrschedule){   
+               debugger;
+             var ddd=  wslrschedule.day;
+               console.log("wslrSchDays77-->",wslrschedule);
                 var m = moment();
        			
         		$('#calendar').fullCalendar({
          			header: {
           					left: 'prev,next ',
           					center: 'title',
-          					right: 'basicDay,agendaday,agendaWeek4day,today'
+          					right: 'basicDay,agendaWeek4day,today'
         					},
            			views: {
     				agendaWeek4day: {
@@ -121,8 +184,13 @@
                         	type: 'agenda',
                         	duration: {days:4},
                         	buttonText: 'week'
-    						}
+    						},
+                    basicDay:{
+                            	columnFormat:'M/D/Y'
+                            
+                              }
 		    		} ,
+                    
                  
                     eventRender: function (data, element, view) {
         
@@ -145,13 +213,10 @@
                 			$(".fc-prev-button").removeClass('fc-state-disabled'); 
                 			$(".fc-prev-button").prop('disabled', false); 
             			}
-                        if(view.type == "agendaWeek4day")
-                        {
-                                                       
-                        }
+                        
             		},
                     eventMouseover: function (data, event, view) {
-
+						 debugger; 
 		                var tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:lightgray;border: 1px black;position:absolute;z-index:10001;padding:10px 10px 10px 10px ;  line-height: 200%;">' + 'Shipment ID: ' + ': ' + data.shipmentid + '</br>' + 'Shipment Status: ' + ': ' + data.shipmentstatus + '</br>'  + 'Origin: ' + ': ' + data.origin + '</br>'+ 'Carrier: ' + ': ' + data.carrier + '</br>'+ 'Dedicated vs OTR : ' + ':' + data.description + '</br>' +' </div>';
             			$("body").append(tooltip);
             			$(this).mouseover(function (e) {
@@ -164,19 +229,26 @@
             		});
         			},
             		eventMouseout: function (data, event, view) {
+                         debugger; 
             			$(this).css('z-index', 8);
 			            $('.tooltiptopicevent').remove();
 		        	},
                     //businessHours: false,
                    
-                    businessHours: {
+                   
+                   /* businessHours: {
+                   
   			  dow: day, 
   			  start: starttime, 
-  			  end: endtime			  }, 
+  			  end: endtime			  }, */
+                    
+                    businessHours: wslrschedule,      
+                    
                           
             height: 400,
-                    
-            slotDuration: '01:00:00',
+            forceEventDuration:true,  
+            defaultTimedEventDuration: '01:00:00',
+            //slotDuration: '01:00:00',
             slotEventOverlap:false,
             defaultdate :m.format(),
             defaultView: 'agendaWeek4day',      
@@ -184,15 +256,12 @@
             displayEventTime: true,              
             weekNumbers: true,
             allDaySlot: false,
-              //slotLabelFormat:"HH:mm",
+           //allDay :true,
+           //slotLabelFormat:"HH:mm",
             weekNumbersWithinDays: true,
             weekNumberCalculation: 'ISO',
-            eventLimit: true,
-                    
-            events:data,
-                            
-                                        
-            				                        
+            eventLimit: true,                    
+            events:appointmenteventdata,                                                                         				                        
         });		                           
     } 
     /*loadbusinesshours:function(day,starttime,endtime)
