@@ -1,0 +1,21 @@
+public class Op_AppointmentWrapper {
+	
+    public class AppointmentDataWrapper{        
+        @AuraEnabled
+		public List<ShipmentAppointment__c> shipmentappointment{get; set;}    
+        @AuraEnabled    
+       	public List<TL_Schedule_days__c> scheduledays{get; set;} 
+        public AppointmentDataWrapper(List<ShipmentAppointment__c> shipmentappointment,List<TL_Schedule_days__c> scheduledays) {            
+            this.shipmentappointment = shipmentappointment;
+            this.scheduledays = scheduledays;
+        }
+    }    
+    @AuraEnabled
+    public static AppointmentDataWrapper getAppointmentData( ){                
+        List<ShipmentAppointment__c> shipmentappointment = new List<ShipmentAppointment__c>();        
+        shipmentappointment = [SELECT Shipment_ID__c,ShipmentStatus__c,ConcatDateTime__c,Origin__c,Carrier__c,Dedicated_vs_OTR__c FROM ShipmentAppointment__c];				       
+        List<TL_Schedule_days__c> scheduledays = new List<TL_Schedule_days__c>();        
+        scheduledays = [SELECT Schedule_ID__r.Wholesaler_Number__c,Day__c,Start_Time__c,End_Time__c FROM TL_Schedule_days__c where Schedule_ID__r.Wholesaler_Number__c = '40455'];        
+     	return new AppointmentDataWrapper(shipmentappointment,scheduledays);        
+    }
+}
